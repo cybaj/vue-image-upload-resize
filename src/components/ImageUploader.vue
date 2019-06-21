@@ -200,6 +200,7 @@ export default {
     return {
       imagePreview: null,
       currentFile: {},
+      currentFileAttributes: {},
     }
   },
 
@@ -226,10 +227,10 @@ export default {
      * Emit event with output
      * @param  {mixed} output - The resized image. type can be simple dataUrl string, verbose object or Blob instance
      */
-    emitEvent(output) {
+    emitEvent(output, options) {
       this.log('emitEvent() is called with output:', 2, output)
-      this.$emit('input', output)
-      this.$emit('change', output)
+      this.$emit('input', output, options)
+      this.$emit('change', output, options)
     },
 
     emitLoad() {
@@ -362,6 +363,9 @@ export default {
         mWidth = Math.min(mWidth, Math.floor(this.scaleRatio * canvas.width))
       }
 
+      this.currentFileAttributes.scaleRatio = this.scaleRatio
+      this.currentFileAttributes.originalSize = {x: canvas.width, y: canvas.height}
+      this.currentFileAttributes.scaledSize = {x: mWidth, y: Math.floor(mWidth / ratio)}
       this.log('ImageUploader: original image size = ' + canvas.width + ' X ' + canvas.height)
       this.log('ImageUploader: scaled image size = ' + mWidth + ' X ' + Math.floor(mWidth / ratio))
 
@@ -397,7 +401,7 @@ export default {
 
       // Return the new image
       // this.emitEvent(this.currentFile) // DEBUG
-      this.emitEvent(this.formatOutput(imageData))
+      this.emitEvent(this.formatOutput(imageData), this.currentFileAttributes)
 
       this.emitComplete()
     },
